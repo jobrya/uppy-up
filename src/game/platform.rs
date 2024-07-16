@@ -1,38 +1,23 @@
 use bevy::prelude::*;
 
 use crate::game::{Direction, Game, Location};
+use crate::game::{Y_INC, X_INC, PLATFORM_Z};
 
 const RIGHT_BOUND: f32 = crate::WINDOW_X / 2. - 50.;
 const LEFT_BOUND: f32 = crate::WINDOW_X / 2. * -1. + 50.;
-const X_INC: f32 = 125.;
-const Y_INC: f32 = 75.;
 
 #[derive(Component, Default)]
 pub struct Platform;
 
 pub fn init_platforms(mut commands: Commands,
      asset_server: Res<AssetServer>,
-    mut loc: Location,
     game: &mut ResMut<Game>
-) -> Vec<Direction> 
+)
 {
-    let mut correct_path = Vec::new();
-
+    //game.top_platform_loc.y += Y_INC;
     for _i in 0..10 {
-
-        let dir = gen_rand_dir(&loc);
-        increment_loc(&mut loc, &dir);
-        correct_path.push(dir);
-
-        commands.spawn(SpriteBundle {
-            texture: asset_server.load("platform.png"),
-            transform: Transform::from_xyz(loc.x, loc.y, 0.0),
-            ..default()
-        });
-        game.top_platform_loc = loc.clone();    
+        increment_platform(&mut commands, &asset_server, game);  
     }
-
-    correct_path
 }
 
 pub fn increment_platform(commands: &mut Commands,
@@ -44,11 +29,10 @@ pub fn increment_platform(commands: &mut Commands,
     increment_loc(&mut game.top_platform_loc, &dir);
     game.correct_path.push(dir);
     commands.spawn(SpriteBundle {
-        texture: asset_server.load("platform.png"),
-        transform: Transform::from_xyz(game.top_platform_loc.x, game.top_platform_loc.y, 0.0),
+        texture: asset_server.load("cloud.png"),
+        transform: Transform::from_xyz(game.top_platform_loc.x, game.top_platform_loc.y, PLATFORM_Z),
         ..default()
     });
-    println!("platform incremented");
 }
 
 fn increment_loc(loc: &mut Location, dir: &Direction) {
@@ -56,7 +40,7 @@ fn increment_loc(loc: &mut Location, dir: &Direction) {
         Direction::Left => {loc.x -= X_INC;},
         Direction::Right => {loc.x += X_INC;},
     }
-    println!("({},{})",loc.x, loc.y);
+    //println!("({},{})",loc.x, loc.y);
     loc.y += Y_INC;
 }
 

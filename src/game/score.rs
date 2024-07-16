@@ -14,6 +14,10 @@ impl Score {
     pub fn increment_score(&mut self) {
         self.value += 1;
     }
+
+    pub fn init_high_score(&mut self) {
+        self.text = String::from("High Score: ");
+    }
 }
 
 impl Default for Score {

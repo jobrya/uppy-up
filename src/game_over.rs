@@ -14,7 +14,7 @@ pub struct GameOverPlugin;
 impl Plugin for GameOverPlugin {
     fn build(&self, app: &mut App){
         app
-            .add_systems(OnEnter(GameState::GameOver), load_game_over)
+            .add_systems(OnEnter(GameState::GameOver), (load_game_over, set_high_score))
             .add_systems(OnExit(GameState::GameOver),  (clear_game_over, reset_game))
             .add_systems(Update, button_system.run_if(in_state(GameState::GameOver)));
     }
@@ -49,6 +49,13 @@ fn clear_ui(commands: &mut Commands,
 
 fn reset_game(mut game: ResMut<Game>) {
     game.reset();
+}
+
+fn set_high_score(mut game: ResMut<Game>) {
+    if game.score.value > game.high_score.value
+    {
+        game.high_score.value = game.score.value;
+    }
 }
 
 fn game_over_ui(commands: &mut Commands, asset_server: Res<AssetServer>, game: Res<Game>) {
