@@ -113,6 +113,7 @@ impl Plugin for GamePlugin {
                 score::update_score,
                 check_point::update_display_checkpoint,
                 animation::execute_animations,
+                timer_check,
             )
                 .run_if(in_state(GameState::Playing)))
             // .add_systems(OnEnter(PlayerAction::Rest), player::do_rest_animation
@@ -179,10 +180,8 @@ fn start_game(
 fn handle_rest(mut player_action: ResMut<NextState<PlayerAction>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut game: ResMut<Game>,
-    //mut query: Query<&mut AnimationConfig>,
-) {
-    // do rest animation?
-    //player::do_rest_animation(&mut game, &mut query);
+) 
+{
 
     if keyboard_input.just_pressed(KeyCode::KeyA) ||
     keyboard_input.just_pressed(KeyCode::ArrowLeft)
@@ -205,9 +204,10 @@ fn handle_jump(mut player_action: ResMut<NextState<PlayerAction>>,
     asset_server: Res<AssetServer>,
     mut transforms: Query<&mut Transform>,
     mut sprite: Query<&mut Sprite>,
-) {
+) 
+{
     let correct_dir = game.correct_path.remove(0);
-    let _correct_loc = game.platforms.remove(0);
+    let correct_loc = game.platforms.remove(0);
     // fail early
     if correct_dir != game.player.direction { // game over starts
         player_action.set(PlayerAction::Fall);
@@ -221,6 +221,12 @@ fn handle_jump(mut player_action: ResMut<NextState<PlayerAction>>,
             },
             ..default()
         };
+        // check point
+        if correct_loc.y == game.check_point.location.y {
+            game.check_point.timer.reset();
+            check_point::move_checkpoint(&mut game, &mut transforms);
+        }
+
         game.player.increment();
         game.score.increment();
         game.set_high_score();
@@ -283,6 +289,15 @@ fn update_camera(mut transforms: Query<&mut Transform>,
 
 fn do_game_over(game_state: &mut ResMut<NextState<GameState>>) {
     game_state.set(GameState::GameOver);
+}
+
+fn timer_check(game: ResMut<Game>,
+    mut player_action: ResMut<NextState<PlayerAction>>
+)
+{
+    if game.check_point.timer.finished() {
+        player_action.set(PlayerAction::Fall);
+    }
 }
 
 // fn load_scores(commands: &mut Commands,

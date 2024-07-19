@@ -15,7 +15,7 @@ pub fn init_platforms(commands: &mut Commands,
     game: &mut ResMut<Game>
 )
 {
-    for _i in 0..20 {
+    for _i in 0..30 {
         increment_platform(commands, &asset_server, game);  
     }
 }
