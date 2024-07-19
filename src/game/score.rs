@@ -6,12 +6,18 @@ pub struct Score {
     pub value: i32,
 }
 
+#[derive(Component)]
+pub struct ScoreEntity;
+
+#[derive(Component)]
+pub struct HighScoreEntity;
+
 impl Score {
     pub fn to_string(&self) -> String {
         self.text.clone() + &self.value.to_string()
     }
 
-    pub fn increment_score(&mut self) {
+    pub fn increment(&mut self) {
         self.value += 1;
     }
 
