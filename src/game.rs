@@ -32,14 +32,14 @@ const CAMERA_Z: f32 = 10.0;
 //     y: 64,
 // };
 
-#[derive(Component, Deref, DerefMut)]
-struct AnimationTimer(Timer);
+// #[derive(Component, Deref, DerefMut)]
+// struct AnimationTimer(Timer);
 
-#[derive(Component)]
-struct AnimationIndices {
-    first: usize,
-    last: usize,
-}
+// #[derive(Component)]
+// struct AnimationIndices {
+//     first: usize,
+//     last: usize,
+// }
 
 // #[derive(Component)]
 // struct ScoreEntity;
@@ -77,7 +77,7 @@ pub struct Game {
     pub high_score: Score,
     top_platform_loc: Location,
     correct_path: Vec<Direction>,
-    platforms: Vec<Platform>,
+    platforms: Vec<Location>,
     check_point: CheckPoint,
 }
 
@@ -87,6 +87,7 @@ impl Game {
         self.score = Score::default();
         self.top_platform_loc = Location::default();
         self.correct_path = Vec::new();
+        self.platforms = Vec::new();
     }
 
     pub fn set_high_score(&mut self) {
@@ -109,8 +110,8 @@ impl Plugin for GamePlugin {
             .add_systems(Update, (
                 update_camera,
                 update_background,
-                update_score,
-                //animate_sprites,
+                score::update_score,
+                check_point::update_display_checkpoint,
                 animation::execute_animations,
             )
                 .run_if(in_state(GameState::Playing)))
@@ -160,13 +161,14 @@ fn start_game(
     game.high_score.init_high_score();
 
     // spawn the scores
-    load_scores(&mut commands, &mut asset_server, &mut game);
+    score::load_scores(&mut commands, &mut asset_server, &mut game);
 
     // init platforms
     platform::init_platforms(&mut commands, &mut asset_server, &mut game);
 
     // spawn the first checkpoint
-    check_point::add_checkpoint(&mut commands, &asset_server, &game.top_platform_loc, texture_atlases);
+    check_point::spawn_checkpoint(&mut commands, &asset_server, &mut game, texture_atlases); 
+    check_point::display_check_point_timer(&mut game, &mut asset_server, &mut commands);
 
     // get the camera
     for entity in camera_query.iter() {
@@ -177,7 +179,7 @@ fn start_game(
 fn handle_rest(mut player_action: ResMut<NextState<PlayerAction>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut game: ResMut<Game>,
-    mut query: Query<&mut AnimationConfig>,
+    //mut query: Query<&mut AnimationConfig>,
 ) {
     // do rest animation?
     //player::do_rest_animation(&mut game, &mut query);
@@ -205,6 +207,7 @@ fn handle_jump(mut player_action: ResMut<NextState<PlayerAction>>,
     mut sprite: Query<&mut Sprite>,
 ) {
     let correct_dir = game.correct_path.remove(0);
+    let _correct_loc = game.platforms.remove(0);
     // fail early
     if correct_dir != game.player.direction { // game over starts
         player_action.set(PlayerAction::Fall);
@@ -282,57 +285,57 @@ fn do_game_over(game_state: &mut ResMut<NextState<GameState>>) {
     game_state.set(GameState::GameOver);
 }
 
-fn load_scores(commands: &mut Commands,
-    asset_server: &mut Res<AssetServer>,
-    game: &mut ResMut<Game>,
-)
-{
-    commands.spawn(NodeBundle {
-        style: Style {
-            width: Val::Percent(100.),
-            height: Val::Percent(100.),
-            flex_direction: FlexDirection::Column,
-            align_content: AlignContent::Start,
-            justify_content: JustifyContent::Start,
-            align_items: AlignItems::Start,
-            ..default()
-        },
-        ..default()
-        }
-    )
-    .with_children(|parent|{
-        parent.spawn((TextBundle::from_section(
-            game.high_score.to_string()
-            , TextStyle { 
-                font: asset_server.load("FiraSans-Regular.ttf"),
-                font_size: 40.,
-                color: Color::WHITE,
-            }
-        ), HighScoreEntity));
-    })
-    .with_children(|parent|{
-        parent.spawn((TextBundle::from_section(
-            game.score.to_string()
-            , TextStyle { 
-                font: asset_server.load("FiraSans-Regular.ttf"),
-                font_size: 40.,
-                color: Color::WHITE,
-            }
-        ), ScoreEntity));
-    });
-}
+// fn load_scores(commands: &mut Commands,
+//     asset_server: &mut Res<AssetServer>,
+//     game: &mut ResMut<Game>,
+// )
+// {
+//     commands.spawn(NodeBundle {
+//         style: Style {
+//             width: Val::Percent(100.),
+//             height: Val::Percent(100.),
+//             flex_direction: FlexDirection::Column,
+//             align_content: AlignContent::Start,
+//             justify_content: JustifyContent::Start,
+//             align_items: AlignItems::Start,
+//             ..default()
+//         },
+//         ..default()
+//         }
+//     )
+//     .with_children(|parent|{
+//         parent.spawn((TextBundle::from_section(
+//             game.high_score.to_string()
+//             , TextStyle { 
+//                 font: asset_server.load("FiraSans-Regular.ttf"),
+//                 font_size: 40.,
+//                 color: Color::WHITE,
+//             }
+//         ), HighScoreEntity));
+//     })
+//     .with_children(|parent|{
+//         parent.spawn((TextBundle::from_section(
+//             game.score.to_string()
+//             , TextStyle { 
+//                 font: asset_server.load("FiraSans-Regular.ttf"),
+//                 font_size: 40.,
+//                 color: Color::WHITE,
+//             }
+//         ), ScoreEntity));
+//     });
+// }
 
-fn update_score(mut score_query: Query<&mut Text, (With<ScoreEntity>, Without<HighScoreEntity>)>,
-    mut high_score_query: Query<&mut Text, (With<HighScoreEntity>, Without<ScoreEntity>)>,
-    game: Res<Game>, 
-) {
-    for mut score in &mut score_query {
-        score.sections[0].value =  game.score.to_string();
-    }
-    for mut high_score in &mut high_score_query {
-        high_score.sections[0].value =  game.high_score.to_string();
-    }
-}
+// fn update_score(mut score_query: Query<&mut Text, (With<ScoreEntity>, Without<HighScoreEntity>)>,
+//     mut high_score_query: Query<&mut Text, (With<HighScoreEntity>, Without<ScoreEntity>)>,
+//     game: Res<Game>, 
+// ) {
+//     for mut score in &mut score_query {
+//         score.sections[0].value =  game.score.to_string();
+//     }
+//     for mut high_score in &mut high_score_query {
+//         high_score.sections[0].value =  game.high_score.to_string();
+//     }
+// }
 
 // fn animate_sprites(
 //     time: Res<Time>,

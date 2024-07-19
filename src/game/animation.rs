@@ -35,18 +35,12 @@ pub fn execute_animations(
     for (mut config, mut atlas) in &mut query {
         // we track how long the current sprite has been displayed for
         config.frame_timer.tick(time.delta());
-
         // If it has been displayed for the user-defined amount of time (fps)...
         if config.frame_timer.just_finished() {
-            if atlas.index == config.last_sprite_index {
-                // ...and it IS the last frame, then we move back to the first frame and stop.
+            if atlas.index >= config.last_sprite_index {
                 atlas.index = config.first_sprite_index;
             } else {
-                // ...and it is NOT the last frame, then we move to the next frame...
                 atlas.index += 1;
-                // // ...and reset the frame timer to start counting all over again
-                // config.frame_timer.reset();
-                // config.frame_timer = AnimationConfig::timer_from_fps(config.fps);
             }
         }
     }
@@ -57,10 +51,14 @@ pub fn get_rest_animation_config() -> AnimationConfig {
     AnimationConfig::new(0, 7, 12, TimerMode::Repeating)
 }
 
-pub fn get_jump_animation_config() -> AnimationConfig {
-    AnimationConfig::new(0, 7, 5, TimerMode::Once)
-}
+// pub fn get_jump_animation_config() -> AnimationConfig {
+//     AnimationConfig::new(0, 7, 5, TimerMode::Once)
+// }
 
 pub fn get_fall_animation_config() -> AnimationConfig {
-    AnimationConfig::new(0, 1, 12, TimerMode::Repeating)
+    AnimationConfig::new(0, 2, 12, TimerMode::Repeating)
+}
+
+pub fn get_checkpoint_animation_config() -> AnimationConfig {
+    AnimationConfig::new(0, 5, 6, TimerMode::Repeating)
 }

@@ -1,12 +1,12 @@
-use std::thread::sleep;
-use std::time::Duration;
+// use std::thread::sleep;
+// use std::time::Duration;
 
 use bevy::prelude::*;
 use crate::game::{Direction, Game, Location};
 use crate::game::animation::AnimationConfig;
 use crate::game::{Y_INC, X_INC, START_X, START_Y};
 
-use super::animation::{get_jump_animation_config, get_rest_animation_config, get_fall_animation_config};
+use super::animation::{get_rest_animation_config, get_fall_animation_config};
 
 const PLAYER_SIZE: UVec2 = UVec2::splat(64);
 pub const PLAYER_OFFSET: f32 = 40.;
@@ -82,42 +82,20 @@ pub fn spawn_player(texture_atlases: &mut ResMut<Assets<TextureAtlasLayout>>,
     )).id());
 }
 
-pub fn do_rest_animation(mut game: ResMut<Game>,
-    mut query: Query<&mut AnimationConfig>,
-) {
-    *query.get_mut(game.player.entity.unwrap()).unwrap() = get_rest_animation_config();
-}
+// pub fn do_rest_animation(mut game: ResMut<Game>,
+//     mut query: Query<&mut AnimationConfig>,
+// ) {
+//     *query.get_mut(game.player.entity.unwrap()).unwrap() = get_rest_animation_config();
+// }
 
-pub fn do_jump_animation(mut game: ResMut<Game>,
-    mut query: Query<&mut AnimationConfig>,
-) {
-    *query.get_mut(game.player.entity.unwrap()).unwrap() = get_jump_animation_config();
-}
+// pub fn do_jump_animation(mut game: ResMut<Game>,
+//     mut query: Query<&mut AnimationConfig>,
+// ) {
+//     *query.get_mut(game.player.entity.unwrap()).unwrap() = get_jump_animation_config();
+// }
 
-pub fn set_fall_animation(mut game: ResMut<Game>,
+pub fn set_fall_animation(game: Res<Game>,
     mut query: Query<&mut AnimationConfig>,
 ) {
-    println!("set fall animation");
     *query.get_mut(game.player.entity.unwrap()).unwrap() = get_fall_animation_config();
-}
-
-
-pub fn fall(game: &mut ResMut<Game>,
-    transforms: &mut Query<&mut Transform>,
-    time: &Res<Time>,
-) {
-    let gravity: f32 = -2.;
-    let ground_y = START_Y + PLAYER_OFFSET;
-    while game.player.location.y > ground_y {
-        println!("{}", game.player.location.y);
-        game.player.location.y = game.player.location.y * gravity * time.delta_seconds();
-        *transforms.get_mut(game.player.entity.unwrap()).unwrap() = Transform::from_xyz(
-            game.player.location.x,
-            game.player.location.y,
-            PLAYER_Z,
-        );        
-    }
-
-
-
 }
