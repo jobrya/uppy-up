@@ -15,14 +15,13 @@ impl Plugin for GameOverPlugin {
     fn build(&self, app: &mut App){
         app
             .add_systems(OnEnter(GameState::GameOver), (load_game_over, set_high_score))
-            .add_systems(OnExit(GameState::GameOver),  (clear_game_over, reset_game))
+            .add_systems(OnExit(GameState::GameOver),  (clear_game_over, reset_game, reset_camera))
             .add_systems(Update, button_system.run_if(in_state(GameState::GameOver)));
     }
 }
 
 fn load_game_over(mut commands: Commands,
     entities: Query<Entity, (Without<Camera>, Without<Window>)>,
-    //mut game_state: ResMut<NextState<GameState>>,
     asset_server: Res<AssetServer>,
     game: Res<Game>,
 )
@@ -49,6 +48,13 @@ fn clear_ui(commands: &mut Commands,
 
 fn reset_game(mut game: ResMut<Game>) {
     game.reset();
+}
+
+fn reset_camera(game: ResMut<Game>,
+    mut transforms: Query<&mut Transform>
+)
+{
+    *transforms.get_mut(game.camera.unwrap()).unwrap() = Transform::default();
 }
 
 fn set_high_score(mut game: ResMut<Game>) {

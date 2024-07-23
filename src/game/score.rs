@@ -49,6 +49,7 @@ pub fn load_scores(commands: &mut Commands,
             align_content: AlignContent::Start,
             justify_content: JustifyContent::Start,
             align_items: AlignItems::Start,
+            padding: UiRect::all(Val::Percent(1.)),
             ..default()
         },
         ..default()

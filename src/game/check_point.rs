@@ -3,7 +3,6 @@ use std::time::Duration;
 use crate::game::{Location, Game};
 use crate::game::animation;
 
-
 const CHECK_POINT_SIZE: UVec2 = UVec2::splat(32);
 pub const CHECK_POINT_OFFSET: f32 = 20.;
 const CHECK_POINT_TIME: f32 = 20.;
@@ -43,8 +42,7 @@ pub fn spawn_checkpoint (
 
     game.check_point.entity = Some(commands.spawn((
         SpriteBundle {
-            // texture: asset_server.load("player_sheet.png"),
-            texture: asset_server.load("hour_glass_v2.png"),
+            texture: asset_server.load("hour_glass.png"),
             transform: Transform::from_xyz(
                 game.top_platform_loc.x,
                 game.top_platform_loc.y + CHECK_POINT_OFFSET,
@@ -60,7 +58,7 @@ pub fn spawn_checkpoint (
     )).id());
 }
 
-pub fn display_check_point_timer(game: &mut ResMut<Game>,
+pub fn display_checkpoint_timer(game: &mut ResMut<Game>,
     asset_server: &mut Res<AssetServer>,
     commands: &mut Commands) 
 {
@@ -72,6 +70,7 @@ pub fn display_check_point_timer(game: &mut ResMut<Game>,
                 align_content: AlignContent::Start,
                 justify_content: JustifyContent::Start,
                 align_items: AlignItems::End,
+                padding: UiRect::all(Val::Percent(1.)),
                 ..default()
             },
             ..default()
@@ -95,7 +94,6 @@ pub fn update_display_checkpoint(mut query: Query<&mut Text, With<CheckPointTime
     time: Res<Time>,
 ) 
 {
-    //println!("updating check point");
     game.check_point.timer.tick(time.delta());
     for mut check_point in &mut query {
         check_point.sections[0].value =  game.check_point.to_string();

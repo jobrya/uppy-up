@@ -8,7 +8,7 @@ use std::time::Duration;
 pub struct AnimationConfig {
     pub first_sprite_index: usize,
     pub last_sprite_index: usize,
-    pub fps: u8,
+    pub _fps: u8,
     pub frame_timer: Timer,
 }
 
@@ -17,7 +17,7 @@ impl AnimationConfig {
         Self {
             first_sprite_index: first,
             last_sprite_index: last,
-            fps,
+            _fps: fps,
             frame_timer: Self::timer_from_fps(fps, timer_mode),
         }
     }
@@ -50,10 +50,6 @@ pub fn execute_animations(
 pub fn get_rest_animation_config() -> AnimationConfig {
     AnimationConfig::new(0, 7, 12, TimerMode::Repeating)
 }
-
-// pub fn get_jump_animation_config() -> AnimationConfig {
-//     AnimationConfig::new(0, 7, 5, TimerMode::Once)
-// }
 
 pub fn get_fall_animation_config() -> AnimationConfig {
     AnimationConfig::new(0, 2, 12, TimerMode::Repeating)

@@ -30,10 +30,6 @@ pub enum PlayerAction {
 
 impl Player {
 
-    // pub fn print_postiion(&mut self) {
-    //     println!("({},{})", self.location.x, self.location.y);
-    // }
-
     pub fn increment(&mut self) {
         match self.direction {
             Direction::Left => 
@@ -65,8 +61,7 @@ pub fn spawn_player(texture_atlases: &mut ResMut<Assets<TextureAtlasLayout>>,
 
     game.player.entity = Some(commands.spawn((
         SpriteBundle {
-            // texture: asset_server.load("player_sheet.png"),
-            texture: asset_server.load("Ball Guy.png"),
+            texture: asset_server.load("ball_guy.png"),
             transform: Transform::from_xyz(
                 game.player.location.x,
                 game.player.location.y,
@@ -81,18 +76,6 @@ pub fn spawn_player(texture_atlases: &mut ResMut<Assets<TextureAtlasLayout>>,
         animation_config,
     )).id());
 }
-
-// pub fn do_rest_animation(mut game: ResMut<Game>,
-//     mut query: Query<&mut AnimationConfig>,
-// ) {
-//     *query.get_mut(game.player.entity.unwrap()).unwrap() = get_rest_animation_config();
-// }
-
-// pub fn do_jump_animation(mut game: ResMut<Game>,
-//     mut query: Query<&mut AnimationConfig>,
-// ) {
-//     *query.get_mut(game.player.entity.unwrap()).unwrap() = get_jump_animation_config();
-// }
 
 pub fn set_fall_animation(game: Res<Game>,
     mut query: Query<&mut AnimationConfig>,

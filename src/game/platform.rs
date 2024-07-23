@@ -1,6 +1,4 @@
 use bevy::prelude::*;
-use bevy::render::render_resource::encase::rts_array::Length;
-
 use crate::game::{Direction, Game, Location};
 use crate::game::{Y_INC, X_INC, PLATFORM_Z};
 

@@ -1,24 +1,17 @@
 use bevy::prelude::*;
 
-use super::GameState;
-
 mod player;
+mod platform;
+mod score;
+mod check_point;
+mod animation;
 use player::Player;
 use player::PlayerAction;
-
-mod platform;
-use platform::Platform;
-mod score;
-use score::{Score, ScoreEntity, HighScoreEntity};
-
-mod check_point;
+use score::Score;
 use check_point::CheckPoint;
-
-mod animation;
-use animation::AnimationConfig;
+use super::GameState;
 
 const GROUND_OFFSET: f32 = 200.;
-// const OFFSET: f32 = 40.;
 const START_X: f32 = 0.0;
 const START_Y: f32 = -200.;
 const X_INC: f32 = 70.;
@@ -26,24 +19,6 @@ const Y_INC: f32 = 40.;
 const PLAYER_Z: f32 = 2.0;
 const PLATFORM_Z: f32 = 1.0;
 const CAMERA_Z: f32 = 10.0;
-
-// const PLAYER_SIZE: UVec2 = UVec2 {
-//     x: 64,
-//     y: 64,
-// };
-
-// #[derive(Component, Deref, DerefMut)]
-// struct AnimationTimer(Timer);
-
-// #[derive(Component)]
-// struct AnimationIndices {
-//     first: usize,
-//     last: usize,
-// }
-
-// #[derive(Component)]
-// struct ScoreEntity;
-
 
 #[derive(Clone)]
 pub struct Location {
@@ -71,8 +46,8 @@ enum Direction {
 
 pub struct Game {
     player: Player,
-    camera: Option<Entity>,
-    background: Option<Entity>,
+    pub camera: Option<Entity>,
+    pub background: Option<Entity>,
     pub score: Score,
     pub high_score: Score,
     top_platform_loc: Location,
@@ -98,7 +73,6 @@ impl Game {
     }
 }
 
-
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
@@ -116,10 +90,6 @@ impl Plugin for GamePlugin {
                 timer_check,
             )
                 .run_if(in_state(GameState::Playing)))
-            // .add_systems(OnEnter(PlayerAction::Rest), player::do_rest_animation
-            //     .run_if(in_state(GameState::Playing)))
-            // .add_systems(OnEnter(PlayerAction::Jump), player::do_jump_animation
-            //     .run_if(in_state(GameState::Playing)))
             .add_systems(OnEnter(PlayerAction::Fall), player::set_fall_animation
                     .run_if(in_state(GameState::Playing)))
             .add_systems(Update, handle_rest
@@ -142,13 +112,6 @@ fn start_game(
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
 ) 
 {
-    // spawn the background
-    game.background = Some(commands.spawn(SpriteBundle {
-        texture: asset_server.load("background_small.png"),
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        ..default()
-    }).id());
-
     // spawn the ground
     commands.spawn(SpriteBundle {
         texture: asset_server.load("ground_cloud.png"),
@@ -157,19 +120,11 @@ fn start_game(
     });
 
     player::spawn_player(&mut texture_atlases, &mut game, &mut commands, &mut asset_server);
-
-    // set high score to zero
     game.high_score.init_high_score();
-
-    // spawn the scores
     score::load_scores(&mut commands, &mut asset_server, &mut game);
-
-    // init platforms
     platform::init_platforms(&mut commands, &mut asset_server, &mut game);
-
-    // spawn the first checkpoint
     check_point::spawn_checkpoint(&mut commands, &asset_server, &mut game, texture_atlases); 
-    check_point::display_check_point_timer(&mut game, &mut asset_server, &mut commands);
+    check_point::display_checkpoint_timer(&mut game, &mut asset_server, &mut commands);
 
     // get the camera
     for entity in camera_query.iter() {
@@ -210,6 +165,11 @@ fn handle_jump(mut player_action: ResMut<NextState<PlayerAction>>,
     let correct_loc = game.platforms.remove(0);
     // fail early
     if correct_dir != game.player.direction { // game over starts
+        // game over sound
+        commands.spawn(AudioBundle {
+            source: asset_server.load("woops.ogg"),
+            ..default()
+        });
         player_action.set(PlayerAction::Fall);
     }
     else { // do jump
@@ -221,9 +181,15 @@ fn handle_jump(mut player_action: ResMut<NextState<PlayerAction>>,
             },
             ..default()
         };
+
         // check point
         if correct_loc.y == game.check_point.location.y {
             game.check_point.timer.reset();
+            // check point sound
+            commands.spawn(AudioBundle {
+                source: asset_server.load("impactGlass_heavy_002.ogg"),
+                ..default()
+            });
             check_point::move_checkpoint(&mut game, &mut transforms);
         }
 
@@ -231,6 +197,12 @@ fn handle_jump(mut player_action: ResMut<NextState<PlayerAction>>,
         game.score.increment();
         game.set_high_score();
         platform::increment_platform(&mut commands, &asset_server, &mut game);
+
+        // jump sound
+        commands.spawn(AudioBundle {
+            source: asset_server.load("footstep_wood_004.ogg"),
+            ..default()
+        });
 
         // move the player
         *transforms.get_mut(game.player.entity.unwrap()).unwrap() = Transform::from_xyz(
@@ -247,7 +219,6 @@ fn handle_fall(mut game_state: ResMut<NextState<GameState>>,
     mut player_action: ResMut<NextState<PlayerAction>>,
     mut game: ResMut<Game>,
     mut transforms: Query<&mut Transform>,
-    //mut animation: Query<&mut AnimationConfig>,
     time: Res<Time>,
 ) {
     let gravity: f32 = 1000.;
@@ -260,7 +231,6 @@ fn handle_fall(mut game_state: ResMut<NextState<GameState>>,
             game.player.location.y,
             PLAYER_Z,
         );
-        //*animation.get_mut(game.player.entity.unwrap()).unwrap() = animation::get_fall_animation_config();
     }
     else {
         player_action.set(PlayerAction::Rest);
@@ -299,71 +269,3 @@ fn timer_check(game: ResMut<Game>,
         player_action.set(PlayerAction::Fall);
     }
 }
-
-// fn load_scores(commands: &mut Commands,
-//     asset_server: &mut Res<AssetServer>,
-//     game: &mut ResMut<Game>,
-// )
-// {
-//     commands.spawn(NodeBundle {
-//         style: Style {
-//             width: Val::Percent(100.),
-//             height: Val::Percent(100.),
-//             flex_direction: FlexDirection::Column,
-//             align_content: AlignContent::Start,
-//             justify_content: JustifyContent::Start,
-//             align_items: AlignItems::Start,
-//             ..default()
-//         },
-//         ..default()
-//         }
-//     )
-//     .with_children(|parent|{
-//         parent.spawn((TextBundle::from_section(
-//             game.high_score.to_string()
-//             , TextStyle { 
-//                 font: asset_server.load("FiraSans-Regular.ttf"),
-//                 font_size: 40.,
-//                 color: Color::WHITE,
-//             }
-//         ), HighScoreEntity));
-//     })
-//     .with_children(|parent|{
-//         parent.spawn((TextBundle::from_section(
-//             game.score.to_string()
-//             , TextStyle { 
-//                 font: asset_server.load("FiraSans-Regular.ttf"),
-//                 font_size: 40.,
-//                 color: Color::WHITE,
-//             }
-//         ), ScoreEntity));
-//     });
-// }
-
-// fn update_score(mut score_query: Query<&mut Text, (With<ScoreEntity>, Without<HighScoreEntity>)>,
-//     mut high_score_query: Query<&mut Text, (With<HighScoreEntity>, Without<ScoreEntity>)>,
-//     game: Res<Game>, 
-// ) {
-//     for mut score in &mut score_query {
-//         score.sections[0].value =  game.score.to_string();
-//     }
-//     for mut high_score in &mut high_score_query {
-//         high_score.sections[0].value =  game.high_score.to_string();
-//     }
-// }
-
-// fn animate_sprites(
-//     time: Res<Time>,
-//     mut query: Query<(&AnimationIndices, &mut AnimationTimer, &mut TextureAtlas)>,
-// ) {
-//     for (indices, mut timer, mut atlas) in &mut query {
-//         timer.tick(time.delta());
-//         if timer.just_finished() {
-//             atlas.index = if atlas.index == indices.last {
-//                 indices.first
-//             } else {
-//                 atlas.index + 1
-//             };
-//         }
-//     }
-// }
