@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::asset::AssetMetaCheck;
 mod menu;
 mod game;
 mod game_over;
@@ -17,15 +18,21 @@ enum GameState {
 
 fn main() {
    App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: String::from("Uppy Up"),
-                resolution: (WINDOW_X, WINDOW_Y).into(),
-                resizable:false,
+        .add_plugins(DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: String::from("Uppy Up"),
+                    resolution: (WINDOW_X, WINDOW_Y).into(),
+                    resizable:false,
+                    ..default()
+                    }),
                 ..default()
-                }),
+            })
+            .set(AssetPlugin{
+                meta_check: AssetMetaCheck::Never,
                 ..default()
-        }))
+            }),
+        )
         .init_state::<GameState>()
         .add_plugins((
             menu::MenuPlugin,

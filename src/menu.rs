@@ -12,8 +12,8 @@ const BLUE: Color = Color::srgb(0.0,0.67,1.0);
 //const PINK: Color = Color::srgb(1.0,0.67,1.0);
 const PURPLE: Color = Color::srgb(0.69, 0.67, 1.0);
 const INSTRUCTIONS: &str = 
-"Use (←, →) or (a, d) to go up.
-Move in the wrong direction or run out of time and it's game over.
+"Use (←, →) or (a, d) to go up. \
+Move in the wrong direction or run out of time and it's game over. \
 Reach an hour glass to earn more time.";
 
 impl Plugin for MenuPlugin {
