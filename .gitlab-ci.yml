@@ -1,2 +1,11 @@
-# The Docker image that will be used to build your app
 image: ubuntu
+
+pages:
+  stage: deploy
+  script:
+    - echo "deploying"
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
