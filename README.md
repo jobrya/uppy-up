@@ -3,7 +3,7 @@
 </p>
 
 # Uppy Up
-A game where the player moves up. [Demo](https://gitlab.com)
+A game where the player moves up. [Demo](https://uppy-up-games5153329-873502649ebeac82136a3cb191cb678251a3b4bf53.gitlab.io/)
 
 ## Built with
 * the [Bevy](https://bevyengine.org/) game engine
