@@ -1,28 +1,9 @@
-image: "rust:latest"
-
-# Use cargo to test the project
-test:cargo:
-  script:
-    - rustc --version && cargo --version  # Print version info for debugging
-    - cargo test --workspace --verbose
-
-setup:
-  script:
-    - rustup target install wasm32-unknown-unknown
-    - cargo install -f wasm-bindgen-cli
-
-clean:
-  script:
-    - rm -r ./public
-    - echo "removed public dir"
+image: ubuntu
 
 pages:
   stage: deploy
   script:
-    - cargo build --target wasm32-unknown-unknown --release
-    - wasm-bindgen --out-dir ./public/ --target web ./target/wasm32-unknown-unknown/release/uppy-up.wasm
-    - cp -r ./assets ./public/assets
-    - echo "deployed"
+    - echo "deploying"
   artifacts:
     paths:
       - public
