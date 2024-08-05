@@ -1,21 +1,16 @@
 <!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <title>Uppy Up</title> 
-    </head>
-    <body>
-        <div id="start-button-wrapper">
-            <div id="start-button">Start!</div>
-        </div>
-    </body>
-    <script type="module">
-        import init from './uppy-up.js'
+<html lang="en">
 
-        document.getElementById('start-button').onclick = function () {
-            document.getElementById('start-button-wrapper').remove();
-            init();
-        };
+<body style="margin: 0px;">
+  <script type="module">
+    import init from './uppy-up.js'
 
-    </script>
+    init().catch((error) => {
+      if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
+        throw error;
+      }
+    });
+  </script>
+</body>
+
 </html>
