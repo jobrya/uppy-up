@@ -11,7 +11,6 @@ A game where the player moves up. [Demo](https://uppy-up-games5153329-873502649e
 * assets created with [Piskel](https://www.piskelapp.com/)
 * assets created with [Sprite Fusion](https://www.spritefusion.com/)
 * audio created with [Audacity](https://www.audacityteam.org/)
-* [Trunk](https://trunkrs.dev/) for the demo
 
 ## Contact
 Josh O'Bryant - jobryant.dev@gmail.com
