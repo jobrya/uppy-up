@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Uppy Up</title> 
+    </head>
+    <body>
+        <div id="start-button-wrapper">
+            <div id="start-button">Start!</div>
+        </div>
+    </body>
+    <script type="module">
+        import init from './uppy-up.js'
+
+        document.getElementById('start-button').onclick = function () {
+            document.getElementById('start-button-wrapper').remove();
+            init();
+        };
+
+    </script>
+</html>

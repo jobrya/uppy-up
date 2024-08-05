@@ -1,1 +1,21 @@
-<!doctype html><meta charset=utf-8><title>Uppy Up</title><link as=fetch crossorigin href=/uppy-up-2455f5952a79f8d4_bg.wasm integrity=sha384-6p_pvVy3Cw-4oXPhccTSNlJzEMl-eKMyRyC7DfBuzoub0n7ivth4KMVIk1Sed18G rel=preload type=application/wasm><link crossorigin href=/uppy-up-2455f5952a79f8d4.js integrity=sha384-L5k77Z2AFJn_yDr9deIF0hs0uel1194iwHMzHu-jfs4IIAPuZrvJxxpPkeP_g5oW rel=modulepreload></head><body><script type=module>import a,*as b from"/uppy-up-2455f5952a79f8d4.js";a(`/uppy-up-2455f5952a79f8d4_bg.wasm`);window.wasmBindings=b</script></body></html>
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Uppy Up</title> 
+    </head>
+    <body>
+        <div id="start-button-wrapper">
+            <div id="start-button">Start!</div>
+        </div>
+    </body>
+    <script type="module">
+        import init from './uppy-up.js'
+
+        document.getElementById('start-button').onclick = function () {
+            document.getElementById('start-button-wrapper').remove();
+            init();
+        };
+
+    </script>
+</html>
